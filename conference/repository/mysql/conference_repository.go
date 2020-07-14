@@ -2,6 +2,7 @@ package mysql
 
 import (
 	"context"
+	"fmt"
 
   	"github.com/jinzhu/gorm"
 
@@ -35,13 +36,13 @@ func (repository *ConferenceRepository) Store (c context.Context, model *domain.
 	return res
 }
 
-func (repository *ConferenceRepository) Update (c context.Context, model *domain.Conference) (error error) {
-	repository.DB.Model(&model).Update(&model)
-
+func (repository *ConferenceRepository) Update (c context.Context, model *domain.Conference) (err error) {
+	repository.DB.Model(&model).Updates(&model)
+	fmt.Print(model.Active)
 	return nil
 }
 
-func (repository *ConferenceRepository) Delete (c context.Context, id uint) (error error) {
+func (repository *ConferenceRepository) Delete (c context.Context, id uint) (err error) {
 	repository.DB.Delete(domain.Conference{}, "id = ?", id)
 
 	return nil

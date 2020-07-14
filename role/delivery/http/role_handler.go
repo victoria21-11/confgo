@@ -3,7 +3,6 @@ package http
 import (
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/labstack/echo"
 	"github.com/go-playground/validator"
@@ -11,25 +10,25 @@ import (
 	"domain"
 )
 
-type ConferenceHandler struct {
-	Usecase domain.ConferenceUsecase
+type RoleHandler struct {
+	Usecase domain.RoleUsecase
 
 	validator *validator.Validate
 }
 
-func Create(e *echo.Echo, usecase domain.ConferenceUsecase) {
-	handler := &ConferenceHandler{
+func Create(e *echo.Echo, usecase domain.RoleUsecase) {
+	handler := &RoleHandler{
 		Usecase: usecase,
 	}
 
-	e.GET("/conferences", handler.Index)
-	e.GET("/conferences/:id", handler.Show)
-	e.POST("/conferences", handler.Store)
-	e.PUT("/conferences/:id", handler.Update)
-	e.DELETE("/conferences/:id", handler.Delete)
+	e.GET("/roles", handler.Index)
+	e.GET("/roles/:id", handler.Show)
+	e.POST("/roles", handler.Store)
+	e.PUT("/roles/:id", handler.Update)
+	e.DELETE("/roles/:id", handler.Delete)
 }
 
-func (handler *ConferenceHandler) Index(c echo.Context) error {
+func (handler *RoleHandler) Index(c echo.Context) error {
 	ctx := c.Request().Context()
 
 	res := handler.Usecase.Index(ctx)
@@ -37,7 +36,7 @@ func (handler *ConferenceHandler) Index(c echo.Context) error {
 	return c.JSON(http.StatusOK, res)
 }
 
-func (handler *ConferenceHandler) Show(c echo.Context) error {
+func (handler *RoleHandler) Show(c echo.Context) error {
 	ctx := c.Request().Context()
 
 	idP, _ := strconv.Atoi(c.Param("id"))
@@ -48,18 +47,12 @@ func (handler *ConferenceHandler) Show(c echo.Context) error {
 	return c.JSON(http.StatusOK, res)
 }
 
-func (handler *ConferenceHandler) Store(c echo.Context) error {
-	var model domain.Conference
+func (handler *RoleHandler) Store(c echo.Context) error {
+	var model domain.Role
 
 	c.Bind(&model)
 
 	ctx := c.Request().Context()
-
-	startDate := c.FormValue("start_date")
-	endDate := c.FormValue("end_date")
-
-	model.StartDate, _ = time.Parse("2006-01-02", startDate)
-	model.EndDate, _ = time.Parse("2006-01-02", endDate)
 
 	errors, err := handler.validate(model)
 
@@ -72,7 +65,7 @@ func (handler *ConferenceHandler) Store(c echo.Context) error {
 	return c.JSON(http.StatusOK, res)
 }
 
-func (handler *ConferenceHandler) validate(model domain.Conference) (errors map[string]string, err error) {
+func (handler *RoleHandler) validate(model domain.Role) (errors map[string]string, err error) {
 	errors = map[string]string{}
 
 	handler.validator = validator.New()
@@ -88,16 +81,10 @@ func (handler *ConferenceHandler) validate(model domain.Conference) (errors map[
 	return errors, err
 }
 
-func (handler *ConferenceHandler) Update(c echo.Context) error {
-	var model domain.Conference
+func (handler *RoleHandler) Update(c echo.Context) error {
+	var model domain.Role
 
 	c.Bind(&model)
-
-	startDate := c.FormValue("start_date")
-	endDate := c.FormValue("end_date")
-
-	model.StartDate, _ = time.Parse("2006-01-02", startDate)
-	model.EndDate, _ = time.Parse("2006-01-02", endDate)
 
 	errors, err := handler.validate(model)
 
@@ -112,7 +99,7 @@ func (handler *ConferenceHandler) Update(c echo.Context) error {
 	return c.JSON(http.StatusOK, res)
 }
 
-func (handler *ConferenceHandler) Delete(c echo.Context) error {
+func (handler *RoleHandler) Delete(c echo.Context) error {
 	ctx := c.Request().Context()
 
 	idP, _ := strconv.Atoi(c.Param("id"))

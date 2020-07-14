@@ -11,11 +11,11 @@ import (
 type Conference struct {
 	gorm.Model
 
-	Title string
-	Description string
-	StartDate time.Time
-	EndDate time.Time
-	Active bool
+	Title string `json:"title" validate:"required"`
+	Description string `json:"description" validate:"required"`
+	StartDate time.Time `json:"start_date"`
+	EndDate time.Time `json:"end_date"`
+	Active bool `json:"active" gorm:"default:false"`
 
 	CustomValidator struct {
 		validator *validator.Validate

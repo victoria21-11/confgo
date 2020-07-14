@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"time"
+	"errors"
 
 	"domain"
 )
@@ -31,16 +32,42 @@ func (usecase *SectionUsecase) Show(c context.Context, id uint) (res domain.Sect
 	return res
 }
 
-func (usecase *SectionUsecase) Store(c context.Context, model *domain.Section) (res domain.Section) {
-	res = usecase.repository.Store(c, model)
+func (usecase *SectionUsecase) Store(c context.Context, model *domain.Section) (res domain.Section, err error) {
+	usecase.repository.FindCoordinator(c, model)
+	usecase.repository.FindConference(c, model)
 
-	return res
+	if model.Coordinator.ID == 0 {
+		err = errors.New("Coordinator not found");
+	}
+
+	if model.Conference.ID == 0 {
+		err = errors.New("Conference not found");
+	}
+
+	if err == nil {
+		res = usecase.repository.Store(c, model)
+	}
+
+	return res, err
 }
 
-func (usecase *SectionUsecase) Update(c context.Context, model *domain.Section) (error error) {
-	usecase.repository.Update(c, model)
+func (usecase *SectionUsecase) Update(c context.Context, model *domain.Section) (err error) {
+	usecase.repository.FindCoordinator(c, model)
+	usecase.repository.FindConference(c, model)
 
-	return nil
+	if model.Coordinator.ID == 0 {
+		err = errors.New("Coordinator not found");
+	}
+
+	if model.Conference.ID == 0 {
+		err = errors.New("Conference not found");
+	}
+
+	if err == nil {
+		usecase.repository.Update(c, model)
+	}
+
+	return err
 }
 
 func (usecase *SectionUsecase) Delete(c context.Context, id uint) (error error) {

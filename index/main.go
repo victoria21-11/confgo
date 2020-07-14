@@ -10,17 +10,21 @@ import (
   "fmt"
   // "context"
 
-  // _articleHttpDelivery "article/delivery/http"
-  // _articleRepo "article/repository/mysql"
-  // _articleUcase "article/usecase"
-
-  // _conferenceRepository "conference/repository/mysql"
-  // _conferenceUsecase "conference/usecase"
-  // _conferenceHandler "conference/delivery/http"
+  _conferenceRepository "conference/repository/mysql"
+  _conferenceUsecase "conference/usecase"
+  _conferenceHandler "conference/delivery/http"
 
   _eventRepository "event/repository/mysql"
   _eventUsecase "event/usecase"
   _eventHandler "event/delivery/http"
+
+  _roleRepository "role/repository/mysql"
+  _roleUsecase "role/usecase"
+  _roleHandler "role/delivery/http"
+
+  _sectionRepository "section/repository/mysql"
+  _sectionUsecase "section/usecase"
+  _sectionHandler "section/delivery/http"
 
   "github.com/spf13/viper"
 )
@@ -34,8 +38,10 @@ func main() {
 
   e := echo.New()
 
+  db.AutoMigrate(&domain.Section{})
+  db.AutoMigrate(&domain.Role{})
   db.AutoMigrate(&domain.Event{})
-
+  db.AutoMigrate(&domain.Conference{})
 
   timeoutContext := time.Duration(viper.GetInt("context.timeout")) * time.Second
 
@@ -43,16 +49,34 @@ func main() {
   eventUsecase := _eventUsecase.Create(eventRepository, timeoutContext)
   _eventHandler.Create(e, eventUsecase)
 
-  e.Logger.Fatal(e.Start(":1323"))
+  conferenceRepository := _conferenceRepository.Create(db)
+  conferenceUsecase := _conferenceUsecase.Create(conferenceRepository, timeoutContext)
+  _conferenceHandler.Create(e, conferenceUsecase)
 
-  // createTestItem(db)
+  roleRepository := _roleRepository.Create(db)
+  roleUsecase := _roleUsecase.Create(roleRepository, timeoutContext)
+  _roleHandler.Create(e, roleUsecase)
+
+  sectionRepository := _sectionRepository.Create(db)
+  sectionUsecase := _sectionUsecase.Create(sectionRepository, timeoutContext)
+  _sectionHandler.Create(e, sectionUsecase)
+
+  e.Logger.Fatal(e.Start(":4040"))
 
 }
 
 func createTestItem(db *gorm.DB) {
-  db.Create(&domain.Conference{Title: "Test", Description: "Test Description", Active: true, StartDate: time.Now(), EndDate: time.Now()})
+  // db.Create(&domain.Conference{Title: "Test", Description: "Test Description", Active: true, StartDate: time.Now(), EndDate: time.Now()})
 
-  var conference domain.Conference
-  db.First(&conference, 1)
-  fmt.Println(conference)
+  var conferences []domain.Conference
+  db.Find(&conferences)
+  fmt.Println(conferences)
+}
+
+func createSection(db *gorm.DB) {
+  db.Create(&domain.Section{Title: "111", Description: "111", ConferenceID: 10, CoordinatorID: 1})
+}
+
+func deleteTestItem(db *gorm.DB) {
+  db.Where("id = ?", 1).Delete(&domain.Conference{})
 }

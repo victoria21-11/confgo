@@ -28,6 +28,18 @@ func (repository *SectionRepository) Find(c context.Context, id uint) (res domai
 	return res
 }
 
+func (repository *SectionRepository) FindCoordinator(c context.Context, model *domain.Section) (res domain.Section) {
+	repository.DB.First(&model.Coordinator, model.CoordinatorID)
+
+	return *model
+}
+
+func (repository *SectionRepository) FindConference(c context.Context, model *domain.Section) (res domain.Section) {
+	repository.DB.First(&model.Conference, model.ConferenceID)
+
+	return *model
+}
+
 func (repository *SectionRepository) Store (c context.Context, model *domain.Section) (res domain.Section) {
 	repository.DB.Create(&model)
 	res = *model
